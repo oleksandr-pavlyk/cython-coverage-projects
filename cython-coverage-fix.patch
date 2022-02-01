@@ -1,0 +1,34 @@
+diff --git a/cython-coverage-scikit-build/CMakeLists.txt b/cython-coverage-scikit-build/CMakeLists.txt
+index 0b1f25a..6fb138c 100644
+--- a/cython-coverage-scikit-build/CMakeLists.txt
++++ b/cython-coverage-scikit-build/CMakeLists.txt
+@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 17)
+ set(CMAKE_CXX_STANDARD_REQUIRED True)
+ 
+ find_package(PythonExtensions REQUIRED)
++
++# setting --working-directory flag for Cython to allow cython to
++# generate correct relative path reference to .pyx files from generated .cxx files
++# in trace calls.
++set(CYTHON_FLAGS "-w ${CMAKE_SOURCE_DIR}")
+ find_package(Cython REQUIRED)
+ 
+ add_subdirectory(tasket)
+diff --git a/cython-coverage-scikit-build/tasket/CMakeLists.txt b/cython-coverage-scikit-build/tasket/CMakeLists.txt
+index 24e99bc..73398cc 100644
+--- a/cython-coverage-scikit-build/tasket/CMakeLists.txt
++++ b/cython-coverage-scikit-build/tasket/CMakeLists.txt
+@@ -9,4 +9,13 @@ add_library(_comp MODULE ${_generated_src})
+ target_compile_definitions(_comp PRIVATE CYTHON_TRACE=1 CYTHON_TRACE_NOGIL=1)
+ python_extension_module(_comp)
+ 
++# Cython.Coverage plug-in requires generated .cxx/.cpp files to be placed next to
++# original .pyx files. This custom target copies them back.
++add_custom_target(_comp_cxx_copyback ALL
++    COMMAND ${CMAKE_COMMAND} -E copy ${_generated_src} ${CMAKE_CURRENT_SOURCE_DIR}
++    DEPENDS _comp
++    VERBATIM
++    COMMENT "Copy generated source file next to .pyx file."
++    )
++
+ install(TARGETS _comp LIBRARY DESTINATION tasket)
