@@ -1,0 +1,31 @@
+[tool.coverage.run]
+plugins = [
+    "Cython.Coverage"
+]
+branch = true
+source = [
+    "tasket"
+]
+omit = [
+    "tests/*",
+]
+
+[tool.coverage.report]
+omit = [
+    "tests/*",
+]
+
+[tool.pytest.ini.options]
+minversion = "6.0"
+norecursedirs= [
+    ".*", "*.egg*", "build", "dist", "conda-recipe",
+]
+addopts = [
+    "--junitxml=junit.xml",
+    "--ignore setup.py",
+    "--cov-report term-missing",
+    "--tb native",
+    "--strict",
+    "--durations=20",
+    "-q -ra",
+]
